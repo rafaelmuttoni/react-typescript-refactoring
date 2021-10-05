@@ -7,18 +7,38 @@ import ModalAddFood from "../../components/ModalAddFood";
 import ModalEditFood from "../../components/ModalEditFood";
 import { FoodsContainer } from "./styles";
 
+interface Food {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  available: boolean;
+  image: string;
+}
+
+interface HandleSubmitParams {
+  image: string;
+  name: string;
+  price: string;
+  description: string;
+}
+
 export default function Dashboard() {
-  const [foods, setFoods] = useState([]);
-  const [editingFood, setEditingFood] = useState({});
+  const [foods, setFoods] = useState<Food[]>([]);
+  const [editingFood, setEditingFood] = useState({} as Food);
   const [modalOpen, setModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => {
-    const response = await api.get("/foods");
-    setFoods(response.data);
+    const fetchFoods = async () => {
+      const response = await api.get("/foods");
+      setFoods(response.data);
+    };
+
+    fetchFoods();
   }, []);
 
-  const handleAddFood = async (food) => {
+  const handleAddFood = async (food: HandleSubmitParams) => {
     try {
       const response = await api.post("/foods", {
         ...food,
@@ -31,7 +51,7 @@ export default function Dashboard() {
     }
   };
 
-  const handleUpdateFood = async (food) => {
+  const handleUpdateFood = async (food: HandleSubmitParams) => {
     try {
       const foodUpdated = await api.put(`/foods/${editingFood.id}`, {
         ...editingFood,
@@ -48,7 +68,7 @@ export default function Dashboard() {
     }
   };
 
-  const handleDeleteFood = async (id) => {
+  const handleDeleteFood = async (id: number) => {
     await api.delete(`/foods/${id}`);
 
     const foodsFiltered = foods.filter((food) => food.id !== id);
@@ -64,7 +84,7 @@ export default function Dashboard() {
     setEditModalOpen(!editModalOpen);
   };
 
-  const handleEditFood = (food) => {
+  const handleEditFood = (food: Food) => {
     setEditingFood(food);
     setEditModalOpen(true);
   };
